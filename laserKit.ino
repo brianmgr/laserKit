@@ -29,7 +29,7 @@ BLYNK_WRITE(V1){
     digitalWrite(0, HIGH);
     yservo.write(param.asInt());
     delay(800);
-    digitalWrite(0, LOW); 
+    digitalWrite(0, LOW);
 }
 
 // X Servo
@@ -37,22 +37,23 @@ BLYNK_WRITE(V2){
     digitalWrite(2, HIGH);
     xservo.write(param.asInt());
     delay(800);
-    digitalWrite(2, LOW); 
+    digitalWrite(2, LOW);
 }
 
 // Pattern A
 BLYNK_WRITE(V3){
+    srand ( time(NULL) );
     int xpos, rand_delay, elapsed_sec;
-
-    // Y Servo can be within range 127-175
-    digitalWrite(0, HIGH);
-    yservo.write(127);
-    delay(800);
-    digitalWrite(0, LOW);
 
     // X servo on, laser on
     digitalWrite(2, HIGH);
     digitalWrite(4, LOW);
+
+    // Y servo can be within range 127-175
+    digitalWrite(0, HIGH);
+    yservo.write(127);
+    delay(800);
+    digitalWrite(0, LOW);
 
     // Only run for 2 minute. (Function always runs twice for some reason)
     time_t start = time(0);
@@ -62,6 +63,11 @@ BLYNK_WRITE(V3){
       xpos = rand() % 43 + 100;
       xservo.write(xpos);
 
+      // Change Y Servo every so often to keep things fresh
+      if( elapsed_sec % 3 == 0){
+        yservo.write(rand() % 5 + 120);
+      }
+
       // Delay between 500ms and 4000ms
       rand_delay = rand() % 4000 + 500;
       delay(rand_delay);
@@ -70,7 +76,7 @@ BLYNK_WRITE(V3){
       elapsed_sec = difftime( time(0), start);
     }
 
-    // X servo off, laser off
+    // xservo off, laser off
     delay(1000);
     digitalWrite(2, LOW);
     digitalWrite(4, HIGH);
@@ -80,6 +86,7 @@ BLYNK_WRITE(V3){
 BLYNK_WRITE(V4){
     // X Servo can be within range 100-142
     // Y Servo can be within range 127-175 (restricted to 140)
+    srand ( time(NULL) );
     int elapsed_sec;
     int y_op = -1, x_op = 1;
     int xpos = rand() % 43 + 100;
@@ -97,13 +104,14 @@ BLYNK_WRITE(V4){
     while( elapsed_sec <= 60 ) {
       // Does the movement, goes all the way to one direction and reverses
       if( xpos <= 100 ){x_op = 1;} else if( xpos >= 142 ){x_op = -1;}
-      if( ypos <= 127 ){y_op = 1;} else if( ypos >= 150 ){y_op = -1;}
+      if( ypos <= 112 ){y_op = 1;} else if( ypos >= 135 ){y_op = -1;}
       xpos = xpos + x_op;
       ypos = ypos + y_op;
 
       xservo.write(xpos);
       yservo.write(ypos);
-      delay(15);
+      delay(70);
+
       // Update elapsed time
       elapsed_sec = difftime( time(0), start);
     }
